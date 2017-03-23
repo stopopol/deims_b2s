@@ -267,24 +267,15 @@ function b2share_field_widget_form(&$form, &$form_state, $field, $instance, $lan
 
   case 'b2share':
     
+	// get field values of node
 	if ($node = menu_get_object()) {
-	  // Get the nid
 	  $nid = $node->nid;
 	  $loaded_node = node_load($nid);
-	  //$temp_uuid = $loaded_node['uuid'];
 	  $uuid = $node->field_uuid[LANGUAGE_NONE][0]['value'];
-	  //drupal_set_message(t('raw node is ' . $loaded_node));
-	  //drupal_set_message(t('Loaded node is ' . json_encode($loaded_node)));
-	  //drupal_set_message(t('Temp uuid is ' . $uuid));
+	  $abstract = $node->field_abstract[LANGUAGE_NONE][0]['value'];
+	  $node_title = $node->title;
 	}
-	
-	$form['nid'] = array(
-        '#type'  => 'hidden',
-		//'#title'  => t('nid'),
-        '#default_value'  => isset($items[$delta]['nid']) ? $items[$delta]['nid'] : $uuid,
-    );
-	
-	
+		
 	// check when field is called
 	$cur_path = current_path();
 	
@@ -300,6 +291,22 @@ function b2share_field_widget_form(&$form, &$form_state, $field, $instance, $lan
 	else {
 		//drupal_set_message(t('A node is being edited '. $cur_path));		
 	}
+	
+	$form['nid'] = array(
+        '#type'  => 'hidden',
+        '#default_value'  => isset($items[$delta]['nid']) ? $items[$delta]['nid'] : $uuid,
+    );
+	
+	$form['node_title'] = array(
+        '#type'  => 'hidden',
+        '#default_value'  => isset($items[$delta]['node_title']) ? $items[$delta]['node_title'] : $node_title,
+    );
+		
+	$form['abstract'] = array(
+        '#type'  => 'hidden',
+        '#default_value'  => isset($items[$delta]['abstract']) ? $items[$delta]['abstract'] : $abstract,
+    );
+	
 	
     // fetch settings
 	$b2share_fieldname = $instance['field_name'];
@@ -352,20 +359,6 @@ function b2share_field_widget_form(&$form, &$form_state, $field, $instance, $lan
       ),
     );
 
-    $element['title'] = array(
-       '#title' => 'Title',
-       '#description' => t('Enter the title the dataset should have on B2Share.'),
-       '#type'  => 'textfield',
-       '#default_value'  => '',
-    );
-
-    $element['description'] = array(
-       '#title' => 'Description',
-       '#description' => t('Put the description of the dataset here.'),
-       '#type'  => 'textfield',
-       '#default_value'  => '',
-    );
-
     $element['creator'] = array(
        '#title' => 'Creator',
        '#description' => t('Put the name of the creator here.'),
@@ -409,9 +402,6 @@ function b2share_field_widget_form(&$form, &$form_state, $field, $instance, $lan
        '#prefix' => '<div id="b2share_pid_textfield_div">',
        '#suffix' => '</div>',
     );
-
-	
-	
 	
     break;
   }
@@ -478,8 +468,6 @@ function b2share_ajax_submit(&$form, &$form_state) {
 		return b2share_print_drupal_messages($form, $temp_field_name);
 	}
   }
-  
- 
 
   // Fetch token from settings
   $temp_token = variable_get('b2share_token');
@@ -515,8 +503,11 @@ function b2share_ajax_submit(&$form, &$form_state) {
 
   // get field information
   $open_access = $form_state['values'][$temp_field_name]['und'][0]['open_access'];
-  $md_description = $form_state['values'][$temp_field_name]['und'][0]['description'];
-  $md_title = $form_state['values'][$temp_field_name]['und'][0]['title'];
+  //$md_description = $form_state['values'][$temp_field_name]['und'][0]['description'];
+  $md_description = $form_state['values']['abstract'];
+  $md_title = $form_state['values']['node_title'];
+  //$md_title = $form_state['values'][$temp_field_name]['und'][0]['title'];
+  
   $md_creator = $form_state['values'][$temp_field_name]['und'][0]['creator'];
   
   //$uuid = $form_state['values']['field_uuid']['und'][0]['uuid'];
