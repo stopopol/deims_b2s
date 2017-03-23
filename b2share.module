@@ -350,12 +350,12 @@ function b2share_field_widget_form(&$form, &$form_state, $field, $instance, $lan
     $element['file_select'] = array(
       '#type' => 'managed_file',
       '#title' => t('Select File'),
-      '#description' => t('Allowed extensions: gif png jpg jpeg txt csv zip 7z'),
+      '#description' => t('Allowed extensions: gif png jpg jpeg txt csv zip 7z xls xlsx'),
       '#default_value' => (isset($foo->picture->fid) ? $foo->picture->fid : ''),
       '#upload_location' => variable_get('picture_upload_location'),
       '#upload_validators' => array(
         'file_validate_size' => array('MAX_FILE_SIZE'*1024*1024),
-		'file_validate_extensions' => array('gif png jpg jpeg txt csv zip 7z')
+		'file_validate_extensions' => array('gif png jpg jpeg txt csv zip 7z xls xlsx')
       ),
     );
 
@@ -667,7 +667,7 @@ function b2share_ajax_submit(&$form, &$form_state) {
 
   // set pid and doi field values if deposition was successful
   if ($http_status == 200) {
-	drupal_set_message(t('File was successfully deposited :)'), 'status');
+	drupal_set_message(t('File was successfully deposited :) Please save your metadata record to store the generated PID'), 'status');
 	$php_variable = drupal_json_decode($output);
 	$files_content = $php_variable['metadata'];
 
