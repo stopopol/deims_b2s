@@ -1,0 +1,8 @@
+name = "B2Share Implementation"
+description = "Utilises the B2Share REST API"
+core = "7.x"
+php = "5.2.4"
+version = "7.x-1.0"
+files[] = b2share.module
+files[] = b2share.install
+configure = admin/config/system/b2share 
