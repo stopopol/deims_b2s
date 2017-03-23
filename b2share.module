@@ -453,7 +453,7 @@ function b2share_ajax_submit(&$form, &$form_state) {
   $temp_field_name = $form_state['values']['database_field_name'];
   $temp_nid = $form_state['values']['nid'];
   
-  drupal_set_message(t('The uuid value in the form is ' . $temp_nid ));
+  //drupal_set_message(t('The uuid value in the form is ' . $temp_nid ));
   
   // function for printing the drupal status messages within an ajax call
   function b2share_print_drupal_messages($form, $temp_field_name){
@@ -519,8 +519,8 @@ function b2share_ajax_submit(&$form, &$form_state) {
   $md_title = $form_state['values'][$temp_field_name]['und'][0]['title'];
   $md_creator = $form_state['values'][$temp_field_name]['und'][0]['creator'];
   
-  $uuid = $form_state['values']['field_uuid']['und'][0]['uuid'];
-  drupal_set_message(t('The uuid value is ' . $uuid ));
+  //$uuid = $form_state['values']['field_uuid']['und'][0]['uuid'];
+  //drupal_set_message(t('The uuid value is ' . $uuid ));
   
   // check for a title
   if (empty($md_title)) {
