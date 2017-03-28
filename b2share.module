@@ -266,16 +266,7 @@ function b2share_field_widget_form(&$form, &$form_state, $field, $instance, $lan
   switch ($instance['widget']['type']) {
 
   case 'b2share':
-    
-	// get field values of node
-	if ($node = menu_get_object()) {
-	  $nid = $node->nid;
-	  $loaded_node = node_load($nid);
-	  $uuid = $node->field_uuid[LANGUAGE_NONE][0]['value'];
-	  $abstract = $node->field_abstract[LANGUAGE_NONE][0]['value'];
-	  $node_title = $node->title;
-	}
-		
+    		
 	// check when field is called
 	$cur_path = current_path();
 	
@@ -292,6 +283,43 @@ function b2share_field_widget_form(&$form, &$form_state, $field, $instance, $lan
 		//drupal_set_message(t('A node is being edited '. $cur_path));		
 	}
 	
+	// get field values of node
+	if ($node = menu_get_object()) {
+	  $nid = $node->nid;
+	  $loaded_node = node_load($nid);
+	  $uuid = $node->field_uuid[LANGUAGE_NONE][0]['value'];
+	  $abstract = $node->field_abstract[LANGUAGE_NONE][0]['value'];
+	  $node_title = $node->title;
+	  
+	  $node->field_person_creator[LANGUAGE_NONE][0]['value']; 
+	  $wrapper = entity_metadata_wrapper('node', $node);
+	  $creator = $wrapper->field_person_creator->value();
+	  
+	  $creator_json = '[';
+	  
+	  for ($x = 0; $x < count($creator); $x++) {
+		  
+		$creator_json .= '{"creator_name":"';  
+		$temp_nid = $creator[$x]->nid;
+		
+		$temp_name = $creator[$x]->field_name;
+		$temp_name2 = $temp_name['und'];
+		$temp_name3 = $temp_name2[0];
+		
+		$creator_json .= $temp_name3['family'] . ', ' .  $temp_name3['given'] . '"}';
+		
+		if ($x+1 < count($creator) && count($creator) != 1) {
+			$creator_json .= ',';
+		}
+		
+		
+	  }
+	  
+	  $creator_json .= ']';
+	  //drupal_set_message(t('Creator json is ' . $creator_json));
+	  
+	}
+	
 	$form['nid'] = array(
         '#type'  => 'hidden',
         '#default_value'  => isset($items[$delta]['nid']) ? $items[$delta]['nid'] : $uuid,
@@ -305,6 +333,11 @@ function b2share_field_widget_form(&$form, &$form_state, $field, $instance, $lan
 	$form['abstract'] = array(
         '#type'  => 'hidden',
         '#default_value'  => isset($items[$delta]['abstract']) ? $items[$delta]['abstract'] : $abstract,
+    );
+	
+	$form['creator'] = array(
+       '#type'  => 'hidden',
+       '#default_value'  => isset($items[$delta]['creator']) ? $items[$delta]['creator'] : $creator_json,
     );
 	
 	
@@ -357,13 +390,6 @@ function b2share_field_widget_form(&$form, &$form_state, $field, $instance, $lan
         'file_validate_size' => array('MAX_FILE_SIZE'*1024*1024),
 		'file_validate_extensions' => array('gif png jpg jpeg txt csv zip 7z xls xlsx')
       ),
-    );
-
-    $element['creator'] = array(
-       '#title' => 'Creator',
-       '#description' => t('Put the name of the creator here.'),
-       '#type'  => 'textfield',
-       '#default_value'  => '',
     );
 
     $element['open_access'] = array(
@@ -508,7 +534,8 @@ function b2share_ajax_submit(&$form, &$form_state) {
   $md_title = $form_state['values']['node_title'];
   //$md_title = $form_state['values'][$temp_field_name]['und'][0]['title'];
   
-  $md_creator = $form_state['values'][$temp_field_name]['und'][0]['creator'];
+  //$md_creator = $form_state['values'][$temp_field_name]['und'][0]['creator'];
+  $md_creator = $form_state['values']['creator'];
   
   //$uuid = $form_state['values']['field_uuid']['und'][0]['uuid'];
   //drupal_set_message(t('The uuid value is ' . $uuid ));
@@ -560,7 +587,7 @@ function b2share_ajax_submit(&$form, &$form_state) {
   }
 
   if (!empty($md_creator)) {
-	$params_json .=  '"creators": [{"creator_name":"' . $md_creator . '"}],';
+	$params_json .=  '"creators":' . $md_creator . ',';
   }
 
   
@@ -570,6 +597,8 @@ function b2share_ajax_submit(&$form, &$form_state) {
   //$params_json .= '"community_specific":{';
   //$params_json .= '}}';
   $params_json .= '}}}';
+  
+  drupal_set_message(t('The params_json is ' . $params_json));
 
   // curl
   $ch = curl_init();
@@ -740,6 +769,7 @@ function b2share_save_to_db($form, &$form_state) {
 
   if ( (empty($values['doi'] == false) || (empty($values['pid']) == false)) ) {
 
+	drupal_set_message(t('I get called'), 'error');
 	$db_name_b2share = $form_state['values']['database_field_name'];
 
 	$b2share_table_name = 'field_data_'.$db_name_b2share;
