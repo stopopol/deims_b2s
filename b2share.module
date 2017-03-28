@@ -266,9 +266,17 @@ function b2share_field_widget_form(&$form, &$form_state, $field, $instance, $lan
   switch ($instance['widget']['type']) {
 
   case 'b2share':
-    		
+    	
 	// check when field is called
 	$cur_path = current_path();
+	
+	$b2share_fieldname = $instance['field_name'];
+	// hidden field for saving the fieldname
+	$form['database_field_name'] = array(
+       '#type'  => 'hidden',
+       '#default_value'  => $b2share_fieldname,
+    );
+	
 	
 	// works 
 	if (preg_match("/add/i", $cur_path)) {
@@ -281,13 +289,14 @@ function b2share_field_widget_form(&$form, &$form_state, $field, $instance, $lan
 	} 
 	else {
 		//drupal_set_message(t('A node is being edited '. $cur_path));		
-	}
+	} 
 	
 	// get field values of node
+	
 	if ($node = menu_get_object()) {
 	  $nid = $node->nid;
 	  $loaded_node = node_load($nid);
-	  $uuid = $node->field_uuid[LANGUAGE_NONE][0]['value'];
+	  $mynode_uuid = $node->field_uuid[LANGUAGE_NONE][0]['value'];
 	  $abstract = $node->field_abstract[LANGUAGE_NONE][0]['value'];
 	  $node_title = $node->title;
 	  
@@ -312,18 +321,18 @@ function b2share_field_widget_form(&$form, &$form_state, $field, $instance, $lan
 			$creator_json .= ',';
 		}
 		
-		
 	  }
 	  
 	  $creator_json .= ']';
 	  //drupal_set_message(t('Creator json is ' . $creator_json));
 	  
-	}
+	} 
 	
-	$form['nid'] = array(
+	
+	$form['node_uuid'] = array(
         '#type'  => 'hidden',
-        '#default_value'  => isset($items[$delta]['nid']) ? $items[$delta]['nid'] : $uuid,
-    );
+        '#default_value'  => isset($items[$delta]['node_uuid']) ? $items[$delta]['node_uuid'] : $mynode_uuid,
+    ); 
 	
 	$form['node_title'] = array(
         '#type'  => 'hidden',
@@ -342,7 +351,7 @@ function b2share_field_widget_form(&$form, &$form_state, $field, $instance, $lan
 	
 	
     // fetch settings
-	$b2share_fieldname = $instance['field_name'];
+	
 	$settings = $instance['settings'];
 	$save_doi_value = variable_get('save_dois');
 
@@ -356,11 +365,7 @@ function b2share_field_widget_form(&$form, &$form_state, $field, $instance, $lan
 		$collapsed = TRUE;
 	}
 
-	// hidden field for saving the fieldname
-	$form['database_field_name'] = array(
-       '#type'  => 'hidden',
-       '#default_value'  => $b2share_fieldname,
-    );
+	
 
 	// add javascript and css
 	$element['#attached']['js'] = array(
@@ -429,7 +434,7 @@ function b2share_field_widget_form(&$form, &$form_state, $field, $instance, $lan
        '#suffix' => '</div>',
     );
 	
-    break;
+    break; 
   }
   return $element;
 }
@@ -467,7 +472,7 @@ function b2share_ajax_submit(&$form, &$form_state) {
   
   // get field name
   $temp_field_name = $form_state['values']['database_field_name'];
-  $temp_nid = $form_state['values']['nid'];
+  $temp_uuid = $form_state['values']['node_uuid'];
   
   //drupal_set_message(t('The uuid value in the form is ' . $temp_nid ));
   
@@ -592,13 +597,13 @@ function b2share_ajax_submit(&$form, &$form_state) {
 
   
   // add community specific aspects for call
-  $metadata_url = 'https://data.lter-europe.net/deims/dataset/' . $temp_nid;
+  $metadata_url = 'https://data.lter-europe.net/deims/dataset/' . $temp_uuid;
   $params_json .= '"community_specific":{"27193e5b-97e6-4f6f-8e87-3694589bcebe":{"metadata_url": "' . $metadata_url . '"';
   //$params_json .= '"community_specific":{';
   //$params_json .= '}}';
   $params_json .= '}}}';
   
-  drupal_set_message(t('The params_json is ' . $params_json));
+  //drupal_set_message(t('The params_json is ' . $params_json));
 
   // curl
   $ch = curl_init();
@@ -768,10 +773,10 @@ function b2share_save_to_db($form, &$form_state) {
   }
 
   if ( (empty($values['doi'] == false) || (empty($values['pid']) == false)) ) {
-
-	drupal_set_message(t('I get called'), 'error');
+	  
+	
 	$db_name_b2share = $form_state['values']['database_field_name'];
-
+	
 	$b2share_table_name = 'field_data_'.$db_name_b2share;
 	$b2share_column_doi = $db_name_b2share.'_doi';
 	$b2share_column_pid = $db_name_b2share.'_pid';
@@ -787,7 +792,9 @@ function b2share_save_to_db($form, &$form_state) {
 		   'language' => 'und',
 		))
       ->execute();
-  }
+  }  
+  
+  
 }
 
 
