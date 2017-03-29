@@ -278,9 +278,30 @@ function b2share_field_widget_form(&$form, &$form_state, $field, $instance, $lan
     );
 	
 	
+	// add javascript and css
+	$element['#attached']['js'] = array(
+      drupal_get_path('module', 'b2share') . '/js/b2share.js',
+    );
+
+    $element['#attached']['css'] = array(
+      drupal_get_path('module', 'b2share') . '/css/b2share.css',
+    );
+
+	// metadata fields of the form
+    $element+= array(
+      '#type'  => 'fieldset',
+      '#title'  => t('Publish data on B2Share'),
+      '#collapsible'  => $collapsible,
+	  '#collapsed' => $collapsed,
+      '#tree'  => TRUE,
+    );
+	
 	// works 
 	if (preg_match("/add/i", $cur_path)) {
 		//drupal_set_message(t('A node is being added ' . $cur_path));
+		$element['info_box'] = array(
+			'#markup' => '<p>A file can only be uploaded to B2Share after the metadata record was successfully created.</p>'
+		);
 		break;
 	}
 	// this part is probably obselete
@@ -367,23 +388,6 @@ function b2share_field_widget_form(&$form, &$form_state, $field, $instance, $lan
 
 	
 
-	// add javascript and css
-	$element['#attached']['js'] = array(
-      drupal_get_path('module', 'b2share') . '/js/b2share.js',
-    );
-
-    $element['#attached']['css'] = array(
-      drupal_get_path('module', 'b2share') . '/css/b2share.css',
-    );
-
-	// metadata fields of the form
-    $element+= array(
-      '#type'  => 'fieldset',
-      '#title'  => t('Publish data on B2Share'),
-      '#collapsible'  => $collapsible,
-	  '#collapsed' => $collapsed,
-      '#tree'  => TRUE,
-    );
 
     $element['file_select'] = array(
       '#type' => 'managed_file',
