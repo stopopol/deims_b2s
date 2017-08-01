@@ -653,10 +653,8 @@ function b2share_ajax_submit(&$form, &$form_state) {
 
   // deposit file
   $ch = curl_init($upload_url);
-  $cfile = new CURLFile($file_realpath,'application/octet-stream', $base_file_name);
-  $data = array ('test_file' => $cfile);
   curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-  curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+  curl_setopt($ch, CURLOPT_POSTFIELDS, file_get_contents($file_realpath));
   curl_setopt($ch, CURLOPT_HTTPHEADER, array(
     'Accept:application/json',
     'Content-Type:application/json',
