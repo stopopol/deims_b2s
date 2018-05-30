@@ -752,15 +752,17 @@ function b2share_field_is_empty($item, $field) {
  * Calls the function responsible for saving the generated values to the database
  */
 function b2share_form_node_form_alter(&$form, &$form_state, $form_id) {
-  $form['actions']['submit']['#submit'][] = 'b2share_save_to_db';
+	$form['actions']['submit']['#submit'][] = 'b2share_save_to_db';
 }
 
 /**
  * Saves values from DOI/PID field to the database.
  */
 function b2share_save_to_db($form, &$form_state) {
-
   $values = array();
+  if (!array_key_exists('database_field_name', $form_state)) {
+	  return;
+  } 
   $temp_field_name = $form_state['values']['database_field_name'];
   if (variable_get('save_dois') == 1 && isset($form_state['values'][$temp_field_name]['und'][0]['doi'])){
 	$values['doi'] = $form_state['values'][$temp_field_name]['und'][0]['doi'];
