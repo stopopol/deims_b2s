@@ -601,7 +601,8 @@ function b2share_ajax_submit(&$form, &$form_state) {
 
   
   // add community specific aspects for call
-  $metadata_url = 'https://www.deims.org/dataset/' . $temp_uuid;
+  //$metadata_url = 'https://www.deims.org/dataset/' . $temp_uuid;
+  $metadata_url = "https://" . $_SERVER['SERVER_NAME'] . "/dataset/" . $temp_uuid;
   $params_json .= '"community_specific":{"27193e5b-97e6-4f6f-8e87-3694589bcebe":{"metadata_url": "' . $metadata_url . '"';
   //$params_json .= '"community_specific":{';
   //$params_json .= '}}';
